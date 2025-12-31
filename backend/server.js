@@ -2,12 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose'); // Remplacement de nedb par mongoose
+const mongoose = require('mongoose');
 
 const app = express();
 const SECRET = "mon_secret_ultra_sur";
 
-app.use(cors());
+// CONFIGURATION CORS DÉTAILLÉE
+app.use(cors({
+    origin: '*', // Autorise ton site Vercel à communiquer avec Render
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'] // Autorise explicitement le Token
+}));
+
 app.use(express.json());
 
 // --- CONNEXION MONGODB ---
@@ -17,7 +23,7 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ Connecté à MongoDB Atlas"))
     .catch(err => console.error("❌ Erreur de connexion MongoDB:", err));
 
-// --- MODÈLES (SCHÉMAS) ---
+// --- MODÈLES ---
 const User = mongoose.model('User', {
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true }
@@ -31,16 +37,26 @@ const Link = mongoose.model('Link', {
 
 // --- MIDDLEWARE AUTH ---
 const auth = (req, res, next) => {
+    // On récupère le token dans le header Authorization
     const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) return res.status(401).send("Accès refusé");
+    
+    if (!token) {
+        console.log("Tentative d'accès sans token");
+        return res.status(401).send("Accès refusé");
+    }
+
     try {
         req.user = jwt.verify(token, SECRET);
         next();
-    } catch { res.status(403).send("Token invalide"); }
+    } catch (err) {
+        console.log("Token invalide ou expiré");
+        res.status(403).send("Token invalide");
+    }
 };
 
 // --- ROUTES ---
 
+// Inchangé, mais vérifie bien que tu te connectes pour générer le token
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -74,7 +90,6 @@ app.delete('/api/links/:id', auth, async (req, res) => {
     res.json({ success: true });
 });
 
-// Important pour Vercel
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ API lancée sur le port ${PORT}`));
 
