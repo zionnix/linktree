@@ -7,23 +7,20 @@ const mongoose = require('mongoose');
 const app = express();
 const SECRET = "mon_secret_ultra_sur";
 
-// CONFIGURATION CORS DÉTAILLÉE
 app.use(cors({
-    origin: '*', // Autorise ton site Vercel à communiquer avec Render
+    origin: '*',
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'] // Autorise explicitement le Token
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 
-// --- CONNEXION MONGODB ---
 const MONGO_URI = "mongodb+srv://czionnix_db_user:EQ61X1nVF7wIMJJF@cluster0.xiywkox.mongodb.net/linktree?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ Connecté à MongoDB Atlas"))
     .catch(err => console.error("❌ Erreur de connexion MongoDB:", err));
 
-// --- MODÈLES ---
 const User = mongoose.model('User', {
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true }
@@ -35,43 +32,42 @@ const Link = mongoose.model('Link', {
     order: Number
 });
 
-// --- MIDDLEWARE AUTH ---
 const auth = (req, res, next) => {
-    // On récupère le token dans le header Authorization
     const token = req.headers['authorization']?.split(' ')[1];
-    
-    if (!token) {
-        console.log("Tentative d'accès sans token");
-        return res.status(401).send("Accès refusé");
-    }
+    if (!token) return res.status(401).send("Accès refusé");
 
     try {
         req.user = jwt.verify(token, SECRET);
         next();
     } catch (err) {
-        console.log("Token invalide ou expiré");
         res.status(403).send("Token invalide");
     }
 };
 
-// --- ROUTES ---
-
-// Inchangé, mais vérifie bien que tu te connectes pour générer le token
+// --- ROUTE LOGIN SÉCURISÉE ---
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        let user = await User.findOne({ username });
+        // On cherche uniquement si l'utilisateur existe
+        const user = await User.findOne({ username });
+
+        // Si l'utilisateur n'existe PAS, on refuse direct (on n'en crée plus !)
         if (!user) {
-            const hash = await bcrypt.hash(password, 10);
-            user = new User({ username, password: hash });
-            await user.save();
+            console.log(`Tentative de connexion refusée : ${username}`);
+            return res.status(401).send("Identifiants incorrects");
         }
-        if (await bcrypt.compare(password, user.password)) {
+
+        // Si l'utilisateur existe, on compare le mot de passe
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
             const token = jwt.sign({ username }, SECRET, { expiresIn: '2h' });
             return res.json({ token });
+        } else {
+            return res.status(400).send("Identifiants incorrects");
         }
-        res.status(400).send("Identifiants incorrects");
-    } catch (err) { res.status(500).send("Erreur serveur"); }
+    } catch (err) { 
+        res.status(500).send("Erreur serveur"); 
+    }
 });
 
 app.get('/api/links', async (req, res) => {
