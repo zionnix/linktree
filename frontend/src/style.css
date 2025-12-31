@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;600&family=Ma+Shan+Zheng&display=swap');
+
+/* --- VARIABLES & THÈMES --- */
+:root {
+  --washi: #fdfaf1;
+  --ink: #1a1a1a;
+  --sakura: #ffb7c5;
+  --crimson: #bc2f32;
+  --gold: #c5a059;
+  --bg-frame: #ffffff;
+  --pattern-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] {
+  --washi: #121212;
+  --ink: #e0e0e0;
+  --sakura: #ffb7c5;
+  --crimson: #d32f2f;
+  --gold: #8e7037;
+  --bg-frame: #1a1a1a;
+  --pattern-color: rgba(255, 255, 255, 0.03);
+}
+
+/* --- BASE --- */
+body {
+  background-color: var(--washi);
+  /* Motif Seigaiha qui s'adapte au thème */
+  background-image: 
+    radial-gradient(circle at 100% 150%, var(--washi) 24%, var(--pattern-color) 25%, var(--pattern-color) 28%, var(--washi) 29%, var(--washi) 36%, var(--pattern-color) 36%, var(--pattern-color) 40%, transparent 40%),
+    radial-gradient(circle at 0 150%, var(--washi) 24%, var(--pattern-color) 25%, var(--pattern-color) 28%, var(--washi) 29%, var(--washi) 36%, var(--pattern-color) 36%, var(--pattern-color) 40%, transparent 40%),
+    radial-gradient(circle at 50% 100%, var(--pattern-color) 10%, var(--washi) 11%, var(--washi) 23%, var(--pattern-color) 24%, var(--pattern-color) 30%, var(--washi) 31%, var(--washi) 43%, var(--pattern-color) 44%, var(--pattern-color) 50%, transparent 50%);
+  background-size: 80px 40px;
+  color: var(--ink);
+  font-family: 'Noto Serif JP', serif;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* --- STRUCTURE --- */
+.app-frame {
+  width: 95%;          /* Utilise presque toute la largeur disponible sur petit écran */
+  max-width: 900px;    /* Augmente cette valeur (était à 600px). Tu peux mettre 1000px si tu veux encore plus large */
+  min-height: 85vh;
+  padding: 80px 60px;  /* Augmente le padding latéral pour aérer l'intérieur */
+  background: var(--bg-frame);
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+  border: 2px solid var(--ink);
+  outline: 10px solid var(--bg-frame);
+  outline-offset: -15px;
+  transition: all 0.5s ease;
+}
+
+
+/* Sceau Hanko */
+.app-frame::after {
+  content: "合格";
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  border: 3px solid var(--crimson);
+  color: var(--crimson);
+  font-family: 'Ma Shan Zheng';
+  padding: 5px;
+  font-size: 20px;
+  opacity: 0.6;
+  transform: rotate(-10deg);
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.avatar-hinomaru {
+  width: 120px;
+  height: 120px;
+  background: var(--crimson);
+  border-radius: 50%;
+  margin: 0 auto 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Ma Shan Zheng';
+  font-size: 60px;
+  box-shadow: 0 10px 25px rgba(188, 47, 50, 0.2);
+}
+
+h1 {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 5.5rem; /* On augmente encore la taille du nom (était à 4rem) */
+  margin: 0;
+  color: var(--ink);
+  letter-spacing: -1px;
+}
+
+/* --- LIENS --- */
+.links-grid {
+ display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Crée deux colonnes si possible */
+  gap: 40px; /* Plus d'espace entre les cartes */
+  margin-top: 40px;
+}
+
+.cyber-card {
+  border-bottom: 2px solid var(--ink);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+}
+
+.cyber-card:hover {
+  border-bottom-color: var(--crimson);
+  transform: translateX(15px);
+}
+
+.link-label {
+  flex-grow: 1;
+  padding: 25px 0;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+}
+
+.link-label:hover {
+  color: var(--crimson);
+}
+
+/* --- NAVIGATION & THEME TOGGLE --- */
+.top-nav {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.auth-trigger {
+  background: var(--bg-frame);
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  font-weight: bold;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.auth-trigger:hover {
+  background: var(--ink);
+  color: var(--bg-frame);
+}
+
+/* --- ADMIN --- */
+.admin-panel {
+  margin-top: 60px;
+  padding: 30px;
+  border: 1px dashed var(--gold);
+  background: var(--washi);
+}
+
+input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--ink);
+  padding: 15px 0;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: var(--ink);
+}
+
+.btn-add {
+  width: 100%;
+  background: var(--ink);
+  color: var(--bg-frame);
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 1.2rem;
+}
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 600px) {
+  .app-frame {
+    width: 95%;
+    max-width: none;
+    padding: 40px 20px;
+  }
+  .links-grid {
+    grid-template-columns: 1fr; /* Repasse en une seule colonne sur mobile */
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    background-size: 60px 30px;
+    align-items: flex-start;
+    padding: 20px 0;
+  }
+  .app-frame {
+    width: 95%;
+    padding: 40px 20px;
+    min-height: auto;
+    border: 1px solid var(--ink);
+    outline: none;
+  }
+  .avatar-hinomaru {
+    width: 90px;
+    height: 90px;
+    font-size: 45px;
+  }
+  h1 { font-size: 2.5rem; }
+  .link-label { font-size: 1.3rem; padding: 20px 0; }
+  .app-frame::after { font-size: 14px; bottom: 15px; right: 15px; }
+  .top-nav { top: 15px; right: 15px; }
+  .auth-trigger { padding: 5px 10px; font-size: 8px; }
+}
+
+@media (max-width: 350px) {
+  h1 { font-size: 2rem; }
+  .link-label { font-size: 1.1rem; }
+}
+
+/* Animation des pétales */
+.sakura {
+  position: fixed;
+  top: -10%;
+  z-index: 1; /* Pour passer devant le fond mais derrière le texte si besoin */
+  font-size: 24px;
+  user-select: none;
+  pointer-events: none;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  0% { 
+    transform: translateY(0) rotate(0deg); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: translateY(110vh) rotate(360deg); 
+    opacity: 0; 
+  }
+}
+
+/* Conteneur indispensable pour le centrage et les pétales */
+.app-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden; /* Empêche le scroll horizontal dû aux pétales */
+}
